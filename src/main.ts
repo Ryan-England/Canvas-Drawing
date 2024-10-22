@@ -22,11 +22,17 @@ const ctx = canvas.getContext("2d");
 let isDrawing: boolean = false;
 let x: number = 0;
 let y: number = 0;
+const lines = [];
+const redoStack = [];
+let currentLine: any = null;
 
 canvas.addEventListener("mousedown", (m) => {
   x = m.offsetX;
   y = m.offsetY;
   isDrawing = true;
+
+  currentLine = [];
+  currentLine.push({x, y});
 });
 
 canvas.addEventListener("mousemove", (m) => {
@@ -34,6 +40,8 @@ canvas.addEventListener("mousemove", (m) => {
     drawLine(ctx, x, y, m.offsetX, m.offsetY);
     x = m.offsetX;
     y = m.offsetY;
+
+    currentLine.push({x, y});
   }
 });
 
@@ -43,15 +51,12 @@ window.addEventListener("mouseup", (m) => {
     x = 0;
     y = 0;
     isDrawing = false;
+    currentLine = null;
   }
 });
 
 function clear() {
-  if (canvas.getContext) {
-    const ctx = canvas.getContext("2d");
-
-    ctx?.clearRect(0, 0, 256, 256);
-  }
+  ctx?.clearRect(0, 0, 256, 256);
 }
 
 const clearButton = document.createElement("button")
@@ -61,6 +66,7 @@ clearButton.addEventListener("click", () => {
 });
 app.append(clearButton);
 
+const draw =new Event("drawing-changed");
 
 function drawLine(context, x1, y1, x2, y2) {
   context.beginPath();
