@@ -22,9 +22,9 @@ const ctx = canvas.getContext("2d");
 let isDrawing: boolean = false;
 let x: number = 0;
 let y: number = 0;
-const lines = [];
+const lines: {x, y}[][] = [];
 const redoStack = [];
-let currentLine: any = null;
+let currentLine: {x, y}[] = [];
 
 canvas.addEventListener("mousedown", (m) => {
   x = m.offsetX;
@@ -33,31 +33,32 @@ canvas.addEventListener("mousedown", (m) => {
 
   currentLine = [];
   currentLine.push({x, y});
+  lines.push(currentLine);
+  redraw();
 });
 
 canvas.addEventListener("mousemove", (m) => {
   if (isDrawing) {
-    drawLine(ctx, x, y, m.offsetX, m.offsetY);
+    //drawLine(ctx, x, y, m.offsetX, m.offsetY);
     x = m.offsetX;
     y = m.offsetY;
 
     currentLine.push({x, y});
+    redraw();
   }
 });
 
 window.addEventListener("mouseup", (m) => {
-  if (isDrawing) {
-    drawLine(ctx, x, y, m.offsetX, m.offsetY);
-    x = 0;
-    y = 0;
-    isDrawing = false;
-    currentLine = null;
-  }
+  //drawLine(ctx, x, y, m.offsetX, m.offsetY);
+  x = m.offsetX;
+  y = m.offsetY;
+  currentLine.push({x, y});
+  x = 0;
+  y = 0;
+  isDrawing = false;
+  currentLine = [];
+  redraw();
 });
-
-function clear() {
-  ctx?.clearRect(0, 0, 256, 256);
-}
 
 const clearButton = document.createElement("button")
 clearButton.textContent = "Clear";
@@ -65,6 +66,25 @@ clearButton.addEventListener("click", () => {
   clear();
 });
 app.append(clearButton);
+
+function clear() {
+  ctx?.clearRect(0, 0, 256, 256);
+}
+
+function redraw() {
+  clear();
+  for (const line of lines) {
+    if (line.length > 1) {
+      ctx?.beginPath();
+      const { x, y } = line[0];
+      ctx?.moveTo(x, y);
+      for (const { x, y } of line) {
+        ctx?.lineTo(x, y);
+      }
+      ctx?.stroke();
+    }
+  }
+}
 
 const draw =new Event("drawing-changed");
 
