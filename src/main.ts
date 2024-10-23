@@ -22,9 +22,9 @@ const ctx = canvas.getContext("2d");
 let isDrawing: boolean = false;
 let x: number = 0;
 let y: number = 0;
-const lines: {x, y}[][] = [];
-const redoStack = [];
-let currentLine: {x, y}[] = [];
+const lines: {x: number, y: number}[][] = [];
+const redoStack: {x: number, y: number}[][] = [];
+let currentLine: {x: number, y: number}[] = [];
 
 const draw =new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", () => {
@@ -63,13 +63,36 @@ window.addEventListener("mouseup", (m) => {
   canvas.dispatchEvent(draw);
 });
 
-const clearButton = document.createElement("button")
+const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 clearButton.addEventListener("click", () => {
   clear();
   lines.splice(0, lines.length);
+  redoStack.splice(0, lines.length);
 });
 app.append(clearButton);
+
+const undoButton = document.createElement("button");
+undoButton.textContent = "Undo";
+undoButton.addEventListener("click", () => {
+  let movedLine: {x: number, y: number}[] | undefined = lines.pop();
+  if (movedLine != undefined) {
+    redoStack.push(movedLine);
+    canvas.dispatchEvent(draw);
+  }
+});
+app.append(undoButton);
+
+const redoButton = document.createElement("button");
+redoButton.textContent = "Redo";
+redoButton.addEventListener("click", () => {
+  let movedLine: {x: number, y: number}[] | undefined = redoStack.pop();
+  if (movedLine != undefined) {
+    lines.push(movedLine);
+    canvas.dispatchEvent(draw);
+  }
+});
+app.append(redoButton);
 
 function clear() {
   ctx?.clearRect(0, 0, 256, 256);
