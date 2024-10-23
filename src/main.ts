@@ -69,6 +69,7 @@ const clearButton = document.createElement("button")
 clearButton.textContent = "Clear";
 clearButton.addEventListener("click", () => {
   clear();
+  lines.splice(0, lines.length);
 });
 app.append(clearButton);
 
