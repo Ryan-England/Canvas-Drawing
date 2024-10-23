@@ -26,6 +26,11 @@ const lines: {x, y}[][] = [];
 const redoStack = [];
 let currentLine: {x, y}[] = [];
 
+const draw =new Event("drawing-changed");
+canvas.addEventListener("drawing-changed", () => {
+  redraw();
+});
+
 canvas.addEventListener("mousedown", (m) => {
   x = m.offsetX;
   y = m.offsetY;
@@ -34,7 +39,7 @@ canvas.addEventListener("mousedown", (m) => {
   currentLine = [];
   currentLine.push({x, y});
   lines.push(currentLine);
-  redraw();
+  canvas.dispatchEvent(draw);
 });
 
 canvas.addEventListener("mousemove", (m) => {
@@ -44,7 +49,7 @@ canvas.addEventListener("mousemove", (m) => {
     y = m.offsetY;
 
     currentLine.push({x, y});
-    redraw();
+    canvas.dispatchEvent(draw);
   }
 });
 
@@ -57,7 +62,7 @@ window.addEventListener("mouseup", (m) => {
   y = 0;
   isDrawing = false;
   currentLine = [];
-  redraw();
+  canvas.dispatchEvent(draw);
 });
 
 const clearButton = document.createElement("button")
@@ -85,8 +90,6 @@ function redraw() {
     }
   }
 }
-
-const draw =new Event("drawing-changed");
 
 function drawLine(context, x1, y1, x2, y2) {
   context.beginPath();
