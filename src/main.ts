@@ -44,7 +44,6 @@ canvas.addEventListener("mousedown", (m) => {
 
 canvas.addEventListener("mousemove", (m) => {
   if (isDrawing) {
-    //drawLine(ctx, x, y, m.offsetX, m.offsetY);
     x = m.offsetX;
     y = m.offsetY;
 
@@ -54,7 +53,6 @@ canvas.addEventListener("mousemove", (m) => {
 });
 
 window.addEventListener("mouseup", (m) => {
-  //drawLine(ctx, x, y, m.offsetX, m.offsetY);
   x = m.offsetX;
   y = m.offsetY;
   currentLine.push({x, y});
