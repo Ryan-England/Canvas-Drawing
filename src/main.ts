@@ -15,6 +15,7 @@ const canvas = document.createElement("canvas");
 canvas.id = "getCanvas"
 canvas.height = 256;
 canvas.width = 256;
+canvas.style.cursor = "none";
 app.append(canvas);
 
 const ctx = canvas.getContext("2d")!;
