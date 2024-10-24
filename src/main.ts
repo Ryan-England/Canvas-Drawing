@@ -50,20 +50,6 @@ class LineCommand {
   }
 }
 
-class cursorCommand {
-  x:number;
-  y:number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
-  draw() {
-    ctx.font = `32px monospace`;
-    ctx.fillText("^v^", this.x - 8, this.y + 16);
-  }
-}
-
 const cursor = {
   x: 0,
   y: 0,
@@ -87,7 +73,6 @@ const cursor = {
     }
     context.font = `${cursor.fontSize}px monospace`;
     context.fillText(cursor.face, cursor.x - 20, cursor.y);
-    console.log("Moved mouse");
   }
 }
 
@@ -102,7 +87,7 @@ canvas.addEventListener("drawing-changed", redraw);
 const moved = new Event("tool-moved");
 canvas.addEventListener("tool-moved", redraw);
 
-canvas.addEventListener("mouseout", (m) => {
+canvas.addEventListener("mouseout", () => {
   cursor.active = false;
   canvas.dispatchEvent(moved);
 });
@@ -206,6 +191,5 @@ function redraw() {
   }
   if (cursor.active) {
     cursor.draw(ctx);
-    console.log("Cursor is active");
   }
 }
