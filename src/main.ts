@@ -50,9 +50,48 @@ class LineCommand {
   }
 }
 
+class cursorCommand {
+  x:number;
+  y:number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+  draw() {
+    ctx.font = `32px monospace`;
+    ctx.fillText("^v^", this.x - 8, this.y + 16);
+  }
+}
+
+const cursor = {
+  x: 0,
+  y: 0,
+  fontSize: 28,
+  face: "^v^",
+  active: false,
+  mouseDown: false,
+  draw: (context: CanvasRenderingContext2D) => {
+    if (style == "thick") {
+      cursor.fontSize = 28;
+      cursor.face = "^m^";
+      if (cursor.mouseDown) {
+        cursor.face = "^x^";
+      }
+    } else {
+      cursor.fontSize = 20;
+      cursor.face = "^v^";
+      if (cursor.mouseDown) {
+        cursor.face = "^w^";
+      }
+    }
+    context.font = `${cursor.fontSize}px monospace`;
+    context.fillText(cursor.face, cursor.x - 20, cursor.y);
+    console.log("Moved mouse");
+  }
+}
+
 let isDrawing: boolean = false;
-let x: number = 0;
-let y: number = 0;
 let style: string = "thin";
 const lines: LineCommand[] = [];
 const redoStack: LineCommand[] = [];
@@ -60,36 +99,52 @@ let currentLine: LineCommand;
 
 const draw =new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", redraw);
+const moved = new Event("tool-moved");
+canvas.addEventListener("tool-moved", redraw);
+
+canvas.addEventListener("mouseout", (m) => {
+  cursor.active = false;
+  canvas.dispatchEvent(moved);
+});
+
+canvas.addEventListener("mouseenter", (m) => {
+  cursor.x = m.offsetX;
+  cursor.y = m.offsetY;
+  cursor.active = true;
+  canvas.dispatchEvent(moved);
+})
 
 canvas.addEventListener("mousedown", (m) => {
-  x = m.offsetX;
-  y = m.offsetY;
+  cursor.x = m.offsetX;
+  cursor.y = m.offsetY;
   isDrawing = true;
+  cursor.mouseDown = true;
 
-  currentLine = new LineCommand(x, y, style);
-  currentLine.grow(x, y);
+  currentLine = new LineCommand(cursor.x, cursor.y, style);
+  currentLine.grow(cursor.x, cursor.y);
   lines.push(currentLine);
   canvas.dispatchEvent(draw);
 });
 
 canvas.addEventListener("mousemove", (m) => {
-  if (isDrawing) {
-    x = m.offsetX;
-    y = m.offsetY;
 
-    currentLine.grow(x, y);
+  cursor.x = m.offsetX;
+  cursor.y = m.offsetY;
+  canvas.dispatchEvent(moved);
+
+  if (isDrawing) {
+    currentLine.grow(cursor.x, cursor.y);
     canvas.dispatchEvent(draw);
   }
 });
 
 self.addEventListener("mouseup", (m) => {
-  x = m.offsetX;
-  y = m.offsetY;
-  currentLine.grow(x, y);
-  x = 0;
-  y = 0;
+  cursor.x = m.offsetX;
+  cursor.y = m.offsetY;
+  currentLine.grow(cursor.x, cursor.y);
   isDrawing = false;
-  currentLine = new LineCommand(x, y, style);
+  currentLine = new LineCommand(cursor.x, cursor.y, style);
+  cursor.mouseDown = false;
   canvas.dispatchEvent(draw);
 });
 
@@ -148,5 +203,9 @@ function redraw() {
   clear();
   for (const line of lines) {
     line.display(ctx);
+  }
+  if (cursor.active) {
+    cursor.draw(ctx);
+    console.log("Cursor is active");
   }
 }
