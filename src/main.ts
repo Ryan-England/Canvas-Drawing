@@ -126,6 +126,20 @@ redoButton.addEventListener("click", () => {
 });
 app.append(redoButton);
 
+const thinButton = document.createElement("button");
+thinButton.textContent = "Thin Marker";
+thinButton.addEventListener("click", () => {
+  style = "thin";
+});
+app.append(thinButton);
+
+const thickButton = document.createElement("button");
+thickButton.textContent = "Thick Marker";
+thickButton.addEventListener("click", () => {
+  style = "thick";
+});
+app.append(thickButton);
+
 function clear() {
   ctx.clearRect(0, 0, 256, 256);
 }
