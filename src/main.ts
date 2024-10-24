@@ -21,7 +21,7 @@ const ctx = canvas.getContext("2d")!;
 
 class LineCommand {
   points: {x: number, y: number}[];
-  width: number = 4;
+  width: number;
 
   constructor(x: number, y: number, style: string) {
     this.points = [{ x, y }];
@@ -29,19 +29,21 @@ class LineCommand {
     if (style == "thick") {
       this.width = 8;
     } else {
-      this.width = 4;
+      this.width = 2;
     }
   }
   display(context: CanvasRenderingContext2D) {
     context.strokeStyle = "black";
     context.lineWidth = this.width;
-    context.beginPath();
-    const { x, y } = this.points[0];
-    context.moveTo(x, y);
-    for (const { x, y } of this.points) {
-      context.lineTo(x, y);
-    }
-    context.stroke();
+    if (this.points.length > 1) {
+      context.beginPath();
+      const { x, y } = this.points[0];
+      context.moveTo(x, y);
+      for (const { x, y } of this.points) {
+        context.lineTo(x, y);
+      }
+      context.stroke();
+   }
   }
   grow(x: number, y: number) {
     this.points.push({ x, y });
@@ -51,9 +53,10 @@ class LineCommand {
 let isDrawing: boolean = false;
 let x: number = 0;
 let y: number = 0;
-const lines: {x: number, y: number}[][] = [];
-const redoStack: {x: number, y: number}[][] = [];
-let currentLine: {x: number, y: number}[] = [];
+let style: string = "thin";
+const lines: LineCommand[] = [];
+const redoStack: LineCommand[] = [];
+let currentLine: LineCommand;
 
 const draw =new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", redraw);
@@ -63,8 +66,8 @@ canvas.addEventListener("mousedown", (m) => {
   y = m.offsetY;
   isDrawing = true;
 
-  currentLine = [];
-  currentLine.push({x, y});
+  currentLine = new LineCommand(x, y, style);
+  currentLine.grow(x, y);
   lines.push(currentLine);
   canvas.dispatchEvent(draw);
 });
@@ -74,7 +77,7 @@ canvas.addEventListener("mousemove", (m) => {
     x = m.offsetX;
     y = m.offsetY;
 
-    currentLine.push({x, y});
+    currentLine.grow(x, y);
     canvas.dispatchEvent(draw);
   }
 });
@@ -82,11 +85,11 @@ canvas.addEventListener("mousemove", (m) => {
 self.addEventListener("mouseup", (m) => {
   x = m.offsetX;
   y = m.offsetY;
-  currentLine.push({x, y});
+  currentLine.grow(x, y);
   x = 0;
   y = 0;
   isDrawing = false;
-  currentLine = [];
+  currentLine = new LineCommand(x, y, style);
   canvas.dispatchEvent(draw);
 });
 
@@ -104,7 +107,7 @@ app.append(clearButton);
 const undoButton = document.createElement("button");
 undoButton.textContent = "Undo";
 undoButton.addEventListener("click", () => {
-  const movedLine: {x: number, y: number}[] | undefined = lines.pop();
+  const movedLine: LineCommand | undefined = lines.pop();
   if (movedLine != undefined) {
     redoStack.push(movedLine);
     canvas.dispatchEvent(draw);
@@ -115,7 +118,7 @@ app.append(undoButton);
 const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
 redoButton.addEventListener("click", () => {
-  const movedLine: {x: number, y: number}[] | undefined = redoStack.pop();
+  const movedLine: LineCommand | undefined = redoStack.pop();
   if (movedLine != undefined) {
     lines.push(movedLine);
     canvas.dispatchEvent(draw);
@@ -130,15 +133,7 @@ function clear() {
 function redraw() {
   clear();
   for (const line of lines) {
-    if (line.length > 1) {
-      ctx.beginPath();
-      const { x, y } = line[0];
-      ctx.moveTo(x, y);
-      for (const { x, y } of line) {
-        ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
+    line.display(ctx);
   }
 }
 
