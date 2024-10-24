@@ -63,6 +63,8 @@ window.addEventListener("mouseup", (m) => {
   canvas.dispatchEvent(draw);
 });
 
+app.append(document.createElement("br"), document.createElement("br"));
+
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 clearButton.addEventListener("click", () => {
