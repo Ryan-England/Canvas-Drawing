@@ -205,14 +205,14 @@ const availableTools = [
     }
   },
   {
-    name: "Thin Marker",
+    name: "Thin Sketch",
     press: () => {
       style = "thin";
       isMarker = true;
     }
   },
   {
-    name: "Thick Marker",
+    name: "Thick Sketch",
     press: () => {
       style = "thick";
       isMarker = true;
