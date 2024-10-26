@@ -224,8 +224,32 @@ const availableTools = [
       isMarker = false;
       canvas.dispatchEvent(moved);
     }
+  },
+  {
+    name: "🏳️‍⚧️ Sticker",
+    press: () => {
+      style = "🏳️‍⚧️";
+      isMarker = false;
+      canvas.dispatchEvent(moved);
+    }
+  },
+  {
+    name: "🎊 Sticker",
+    press: () => {
+      style = "🎊";
+      isMarker = false;
+      canvas.dispatchEvent(moved);
+    }
   }
 ]
+
+for (const tool of availableTools) {
+  const toolButton = document.createElement("button");
+  toolButton.textContent = tool.name;
+  toolButton.addEventListener("click", tool.press)
+  app.append(toolButton);
+  buttons.push(toolButton);
+}
 
 /*
 const clearButton = document.createElement("button");
