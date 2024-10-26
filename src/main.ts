@@ -163,7 +163,7 @@ canvas.addEventListener("mousemove", (m) => {
 self.addEventListener("mouseup", (m) => {
   cursor.x = m.offsetX;
   cursor.y = m.offsetY;
-  if (isMarker) currentLine.grow(cursor.x, cursor.y);
+  if (isMarker && currentLine != undefined) currentLine.grow(cursor.x, cursor.y);
   isDrawing = false;
   currentLine = new LineCommand(cursor.x, cursor.y, style);
   cursor.mouseDown = false;
@@ -278,64 +278,6 @@ for (const tool of availableTools) {
     buttonCounter = 0;
   }
 }
-
-/*
-const clearButton = document.createElement("button");
-clearButton.textContent = "Clear";
-clearButton.addEventListener("click", () => {
-  clear();
-  lines.splice(0, lines.length);
-  redoStack.splice(0, lines.length);
-});
-app.append(clearButton);
-
-const undoButton = document.createElement("button");
-undoButton.textContent = "Undo";
-undoButton.addEventListener("click", () => {
-  const movedLine: LineCommand | StickerCommand | undefined = lines.pop();
-  if (movedLine != undefined) {
-    redoStack.push(movedLine);
-    canvas.dispatchEvent(draw);
-  }
-});
-app.append(undoButton);
-
-const redoButton = document.createElement("button");
-redoButton.textContent = "Redo";
-redoButton.addEventListener("click", () => {
-  const movedLine: LineCommand | StickerCommand | undefined = redoStack.pop();
-  if (movedLine != undefined) {
-    lines.push(movedLine);
-    canvas.dispatchEvent(draw);
-  }
-});
-app.append(redoButton);
-
-const thinButton = document.createElement("button");
-thinButton.textContent = "Thin Marker";
-thinButton.addEventListener("click", () => {
-  style = "thin";
-  isMarker = true;
-});
-app.append(thinButton);
-
-const thickButton = document.createElement("button");
-thickButton.textContent = "Thick Marker";
-thickButton.addEventListener("click", () => {
-  style = "thick";
-  isMarker = true;
-});
-app.append(thickButton);
-
-const chocButton = document.createElement("button");
-chocButton.textContent = "🍫 Sticker";
-chocButton.addEventListener("click", () => {
-  style = "🍫";
-  isMarker = false;
-  canvas.dispatchEvent(moved);
-});
-app.append(chocButton);
-*/
 
 function clear() {
   ctx.clearRect(0, 0, 256, 256);
