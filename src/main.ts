@@ -132,8 +132,6 @@ canvas.addEventListener("mousedown", (m) => {
   isDrawing = true;
   cursor.mouseDown = true;
 
-
-  console.log(isMarker)
   if (isMarker) {
     currentLine = new LineCommand(cursor.x, cursor.y, style);
     currentLine.grow(cursor.x, cursor.y);
@@ -243,13 +241,17 @@ const availableTools = [
   {
     name: "Export",
     press: () => {
+      const confirmation = prompt("Would you like a transparent background? (Y/N)", "n");
+      const firstLetter = Array.from(String(confirmation))[0];
       const tempCanvas = document.createElement("canvas");
       tempCanvas.id = "ExportCanvas";
       tempCanvas.height = 1024;
       tempCanvas.width = 1024;
       const expCtx = tempCanvas.getContext("2d")!;
       expCtx.scale(4, 4);
-      expCtx.clearRect(0, 0, 1024, 1024)
+      if (!(firstLetter == "y" || firstLetter == "Y")) {
+        expCtx.clearRect(0, 0, 1024, 1024)
+      }
       for (const line of lines) {
         line.display(expCtx);
       }
