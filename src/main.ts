@@ -241,6 +241,25 @@ const availableTools = [
     }
   },
   {
+    name: "Export",
+    press: () => {
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.id = "ExportCanvas";
+      tempCanvas.height = 1024;
+      tempCanvas.width = 1024;
+      const expCtx = tempCanvas.getContext("2d")!;
+      expCtx.scale(4, 4);
+      expCtx.clearRect(0, 0, 1024, 1024)
+      for (const line of lines) {
+        line.display(expCtx);
+      }
+      const anchor = document.createElement("a");
+      anchor.href = tempCanvas.toDataURL("image/png");
+      anchor.download = "sketchpadExport.png";
+      anchor.click();
+    }
+  },
+  {
     name: "🍫 Sticker",
     press: () => {
       style = "🍫";
