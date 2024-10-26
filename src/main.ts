@@ -51,9 +51,29 @@ class LineCommand {
   }
 }
 
+class StickerCommand {
+ point: {x: number, y: number};
+ sticker: string;
+
+ constructor(x:number, y:number, image:string) {
+  this.point = {x, y};
+  this.sticker = image;
+ }
+
+ display(context: CanvasRenderingContext2D) {
+  context.font = `24px monospace`;
+  context.fillText(this.sticker, this.point.x - cursor.xOffset, this.point.y - cursor.yOffset);
+ }
+ drag(x: number, y: number) {
+  this.point = {x, y};
+ }
+}
+
 const cursor = {
   x: 0,
   y: 0,
+  xOffset: 20,
+  yOffset: 0,
   fontSize: 28,
   face: "^v^",
   active: false,
@@ -77,15 +97,17 @@ const cursor = {
       cursor.face = style;
     }
     context.font = `${cursor.fontSize}px monospace`;
-    context.fillText(cursor.face, cursor.x - 20, cursor.y);
+    context.fillText(cursor.face, cursor.x - cursor.xOffset, cursor.y - cursor.yOffset);
   }
 }
 
 let isDrawing: boolean = false;
+let isMarker: boolean = true;
 let style: string = "thin";
-const lines: LineCommand[] = [];
-const redoStack: LineCommand[] = [];
+const lines: (LineCommand | StickerCommand)[] = [];
+const redoStack: (LineCommand | StickerCommand)[] = [];
 let currentLine: LineCommand;
+let currentSticker: StickerCommand;
 
 const draw =new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", redraw);
@@ -110,10 +132,17 @@ canvas.addEventListener("mousedown", (m) => {
   isDrawing = true;
   cursor.mouseDown = true;
 
-  currentLine = new LineCommand(cursor.x, cursor.y, style);
-  currentLine.grow(cursor.x, cursor.y);
-  lines.push(currentLine);
-  canvas.dispatchEvent(draw);
+
+  console.log(isMarker)
+  if (isMarker) {
+    currentLine = new LineCommand(cursor.x, cursor.y, style);
+    currentLine.grow(cursor.x, cursor.y);
+    lines.push(currentLine);
+    canvas.dispatchEvent(draw);
+  } else {
+    currentSticker = new StickerCommand(cursor.x, cursor.y, style);
+    lines.push(currentSticker);
+  }
 });
 
 canvas.addEventListener("mousemove", (m) => {
@@ -122,16 +151,19 @@ canvas.addEventListener("mousemove", (m) => {
   cursor.y = m.offsetY;
   canvas.dispatchEvent(moved);
 
-  if (isDrawing) {
+  if (isDrawing && isMarker) {
     currentLine.grow(cursor.x, cursor.y);
     canvas.dispatchEvent(draw);
+  } else if (isDrawing) {
+    currentSticker.drag(cursor.x, cursor.y);
+    canvas.dispatchEvent(moved);
   }
 });
 
 self.addEventListener("mouseup", (m) => {
   cursor.x = m.offsetX;
   cursor.y = m.offsetY;
-  currentLine.grow(cursor.x, cursor.y);
+  if (isMarker) currentLine.grow(cursor.x, cursor.y);
   isDrawing = false;
   currentLine = new LineCommand(cursor.x, cursor.y, style);
   cursor.mouseDown = false;
@@ -152,7 +184,7 @@ app.append(clearButton);
 const undoButton = document.createElement("button");
 undoButton.textContent = "Undo";
 undoButton.addEventListener("click", () => {
-  const movedLine: LineCommand | undefined = lines.pop();
+  const movedLine: LineCommand | StickerCommand | undefined = lines.pop();
   if (movedLine != undefined) {
     redoStack.push(movedLine);
     canvas.dispatchEvent(draw);
@@ -163,7 +195,7 @@ app.append(undoButton);
 const redoButton = document.createElement("button");
 redoButton.textContent = "Redo";
 redoButton.addEventListener("click", () => {
-  const movedLine: LineCommand | undefined = redoStack.pop();
+  const movedLine: LineCommand | StickerCommand | undefined = redoStack.pop();
   if (movedLine != undefined) {
     lines.push(movedLine);
     canvas.dispatchEvent(draw);
@@ -175,6 +207,7 @@ const thinButton = document.createElement("button");
 thinButton.textContent = "Thin Marker";
 thinButton.addEventListener("click", () => {
   style = "thin";
+  isMarker = true;
 });
 app.append(thinButton);
 
@@ -182,8 +215,18 @@ const thickButton = document.createElement("button");
 thickButton.textContent = "Thick Marker";
 thickButton.addEventListener("click", () => {
   style = "thick";
+  isMarker = true;
 });
 app.append(thickButton);
+
+const chocButton = document.createElement("button");
+chocButton.textContent = "🍫 Sticker";
+chocButton.addEventListener("click", () => {
+  style = "🍫";
+  isMarker = false;
+  canvas.dispatchEvent(moved);
+});
+app.append(chocButton);
 
 function clear() {
   ctx.clearRect(0, 0, 256, 256);
