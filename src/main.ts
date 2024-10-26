@@ -172,6 +172,62 @@ self.addEventListener("mouseup", (m) => {
 
 app.append(document.createElement("br"), document.createElement("br"));
 
+const buttons: HTMLButtonElement[] = [];
+
+const availableTools = [
+  {
+  name: "Clear",
+  press: () => {
+    clear();
+    lines.splice(0, lines.length);
+    redoStack.splice(0, lines.length);
+    }
+  },
+  {
+    name: "Undo",
+    press: () => {
+      const movedLine: LineCommand | StickerCommand | undefined = lines.pop();
+      if (movedLine != undefined) {
+        redoStack.push(movedLine);
+        canvas.dispatchEvent(draw);
+      }
+    }
+  },
+  {
+    name: "Redo",
+    press: () => {
+      const movedLine: LineCommand | StickerCommand | undefined = redoStack.pop();
+      if (movedLine != undefined) {
+        lines.push(movedLine);
+        canvas.dispatchEvent(draw);
+      }
+    }
+  },
+  {
+    name: "Thin Marker",
+    press: () => {
+      style = "thin";
+      isMarker = true;
+    }
+  },
+  {
+    name: "Thick Marker",
+    press: () => {
+      style = "thick";
+      isMarker = true;
+    }
+  }, 
+  {
+    name: "🍫 Sticker",
+    press: () => {
+      style = "🍫";
+      isMarker = false;
+      canvas.dispatchEvent(moved);
+    }
+  }
+]
+
+/*
 const clearButton = document.createElement("button");
 clearButton.textContent = "Clear";
 clearButton.addEventListener("click", () => {
@@ -227,6 +283,7 @@ chocButton.addEventListener("click", () => {
   canvas.dispatchEvent(moved);
 });
 app.append(chocButton);
+*/
 
 function clear() {
   ctx.clearRect(0, 0, 256, 256);
