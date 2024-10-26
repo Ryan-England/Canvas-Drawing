@@ -12,7 +12,7 @@ header.innerHTML = "Please draw here:";
 app.append(header);
 
 const canvas = document.createElement("canvas");
-canvas.id = "getCanvas"
+canvas.id = "getCanvas";
 canvas.height = 256;
 canvas.width = 256;
 canvas.style.cursor = "none";
@@ -65,12 +65,16 @@ const cursor = {
       if (cursor.mouseDown) {
         cursor.face = "^x^";
       }
-    } else {
+    } else if (style == "thin") {
       cursor.fontSize = 20;
       cursor.face = "^v^";
       if (cursor.mouseDown) {
         cursor.face = "^w^";
       }
+    }
+    else {
+      cursor.fontSize = 24;
+      cursor.face = style;
     }
     context.font = `${cursor.fontSize}px monospace`;
     context.fillText(cursor.face, cursor.x - 20, cursor.y);
