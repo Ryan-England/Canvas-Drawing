@@ -173,6 +173,7 @@ self.addEventListener("mouseup", (m) => {
 app.append(document.createElement("br"), document.createElement("br"));
 
 const buttons: HTMLButtonElement[] = [];
+let buttonCounter = 0;
 
 const availableTools = [
   {
@@ -218,6 +219,28 @@ const availableTools = [
     }
   }, 
   {
+    name: "Custom Sticker",
+    press: () => {
+      const newSticker = prompt("Please enter text or an emoji: ", "🤷‍♀️");
+      if (newSticker != null) {
+        const newButton = document.createElement("button");
+        newButton.textContent = `${newSticker} Sticker`;
+        newButton.addEventListener("click", () => {
+          style = newSticker;
+          isMarker = false;
+          canvas.dispatchEvent(moved);
+        })
+        app.append(newButton);
+        buttons.push(newButton);
+        buttonCounter++;
+        if (buttonCounter >= 5) {
+          app.append(document.createElement("br"));
+          buttonCounter = 0;
+        }
+      }
+    }
+  },
+  {
     name: "🍫 Sticker",
     press: () => {
       style = "🍫";
@@ -249,6 +272,11 @@ for (const tool of availableTools) {
   toolButton.addEventListener("click", tool.press)
   app.append(toolButton);
   buttons.push(toolButton);
+  buttonCounter++;
+  if (buttonCounter >= 5) {
+    app.append(document.createElement("br"));
+    buttonCounter = 0;
+  }
 }
 
 /*
