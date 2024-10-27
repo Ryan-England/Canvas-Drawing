@@ -23,8 +23,9 @@ const ctx = canvas.getContext("2d")!;
 class LineCommand {
   points: {x: number, y: number}[];
   width: number;
+  color: string;
 
-  constructor(x: number, y: number, style: string) {
+  constructor(x: number, y: number, style: string, newColor: string) {
     this.points = [{ x, y }];
 
     if (style == "thick") {
@@ -32,9 +33,11 @@ class LineCommand {
     } else {
       this.width = 2;
     }
+
+    this.color = newColor;
   }
   display(context: CanvasRenderingContext2D) {
-    context.strokeStyle = "black";
+    context.strokeStyle = this.color;
     context.lineWidth = this.width;
     if (this.points.length > 1) {
       context.beginPath();
@@ -133,7 +136,9 @@ canvas.addEventListener("mousedown", (m) => {
   cursor.mouseDown = true;
 
   if (isMarker) {
-    currentLine = new LineCommand(cursor.x, cursor.y, style);
+    const currentColor = `rgb(${redSlider.value}, ${greenSlider.value}, ${blueSlider.value})`
+    console.log(currentColor);
+    currentLine = new LineCommand(cursor.x, cursor.y, style, currentColor);
     currentLine.grow(cursor.x, cursor.y);
     lines.push(currentLine);
     canvas.dispatchEvent(draw);
@@ -163,12 +168,49 @@ self.addEventListener("mouseup", (m) => {
   cursor.y = m.offsetY;
   if (isMarker && currentLine != undefined) currentLine.grow(cursor.x, cursor.y);
   isDrawing = false;
-  currentLine = new LineCommand(cursor.x, cursor.y, style);
+  currentLine = new LineCommand(cursor.x, cursor.y, style, "black");
   cursor.mouseDown = false;
   canvas.dispatchEvent(draw);
 });
 
 app.append(document.createElement("br"), document.createElement("br"));
+
+const redLabel = document.createElement("div");
+redLabel.innerText = "Red: "
+app.append(redLabel);
+
+const redSlider = document.createElement("input");
+redSlider.type = "range";
+redSlider.min = "0";
+redSlider.max = "255";
+redSlider.step = "5";
+redSlider.value = "0";
+app.append(redSlider);
+
+const greenLabel = document.createElement("div");
+greenLabel.innerText = "Green: "
+app.append(greenLabel);
+
+const greenSlider = document.createElement("input");
+greenSlider.type = "range";
+greenSlider.min = "0";
+greenSlider.max = "255";
+greenSlider.step = "5";
+greenSlider.value = "0";
+app.append(greenSlider)
+
+const blueLabel = document.createElement("div");
+blueLabel.innerText = "Blue: "
+app.append(blueLabel);
+
+const blueSlider = document.createElement("input");
+blueSlider.type = "range";
+blueSlider.min = "0";
+blueSlider.max = "255";
+blueSlider.step = "5";
+blueSlider.value = "0";
+app.append(blueSlider)
+app.append(document.createElement("br"));
 
 const buttons: HTMLButtonElement[] = [];
 let buttonCounter = 0;
