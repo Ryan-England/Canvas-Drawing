@@ -1,25 +1,5 @@
 import "./style.css";
 
-const APP_NAME = "Hello, welcome to our Canvas";
-const app = document.querySelector<HTMLDivElement>("#app")!;
-
-document.title = APP_NAME;
-app.innerHTML = APP_NAME;
-
-
-const header = document.createElement("h1");
-header.innerHTML = "Please draw here:";
-app.append(header);
-
-const canvas = document.createElement("canvas");
-canvas.id = "getCanvas";
-canvas.height = 256;
-canvas.width = 256;
-canvas.style.cursor = "none";
-app.append(canvas);
-
-const ctx = canvas.getContext("2d")!;
-
 class LineCommand {
   points: {x: number, y: number}[];
   width: number;
@@ -82,13 +62,13 @@ const cursor = {
   active: false,
   mouseDown: false,
   draw: (context: CanvasRenderingContext2D) => {
-    if (style == "thick") {
+    if (currentStyle == "thick") {
       cursor.fontSize = 28;
       cursor.face = "^m^";
       if (cursor.mouseDown) {
         cursor.face = "^x^";
       }
-    } else if (style == "thin") {
+    } else if (currentStyle == "thin") {
       cursor.fontSize = 20;
       cursor.face = "^v^";
       if (cursor.mouseDown) {
@@ -97,20 +77,54 @@ const cursor = {
     }
     else {
       cursor.fontSize = 24;
-      cursor.face = style;
+      cursor.face = currentStyle;
     }
     context.font = `${cursor.fontSize}px monospace`;
     context.fillText(cursor.face, cursor.x - cursor.xOffset, cursor.y - cursor.yOffset);
   }
 }
 
+function clear() {
+  ctx.clearRect(0, 0, 256, 256);
+}
+
+function redraw() {
+  clear();
+  for (const line of lines) {
+    line.display(ctx);
+  }
+  if (cursor.active) {
+    cursor.draw(ctx);
+  }
+}
+
+
+const APP_NAME = "Hello, welcome to our Canvas";
+const app = document.querySelector<HTMLDivElement>("#app")!;
+
+document.title = APP_NAME;
+app.innerHTML = APP_NAME;
+
 let isDrawing: boolean = false;
 let isMarker: boolean = true;
-let style: string = "thin";
+let currentStyle: string = "thin";
 const lines: (LineCommand | StickerCommand)[] = [];
 const redoStack: (LineCommand | StickerCommand)[] = [];
 let currentLine: LineCommand;
 let currentSticker: StickerCommand;
+
+const header = document.createElement("h1");
+header.innerHTML = "Please draw here:";
+app.append(header);
+
+const canvas = document.createElement("canvas");
+canvas.id = "getCanvas";
+canvas.height = 256;
+canvas.width = 256;
+canvas.style.cursor = "none";
+app.append(canvas);
+
+const ctx = canvas.getContext("2d")!;
 
 const draw =new Event("drawing-changed");
 canvas.addEventListener("drawing-changed", redraw);
@@ -138,12 +152,12 @@ canvas.addEventListener("mousedown", (m) => {
   if (isMarker) {
     const currentColor = `rgb(${redSlider.value}, ${greenSlider.value}, ${blueSlider.value})`
     console.log(currentColor);
-    currentLine = new LineCommand(cursor.x, cursor.y, style, currentColor);
+    currentLine = new LineCommand(cursor.x, cursor.y, currentStyle, currentColor);
     currentLine.grow(cursor.x, cursor.y);
     lines.push(currentLine);
     canvas.dispatchEvent(draw);
   } else {
-    currentSticker = new StickerCommand(cursor.x, cursor.y, style);
+    currentSticker = new StickerCommand(cursor.x, cursor.y, currentStyle);
     lines.push(currentSticker);
   }
 });
@@ -168,7 +182,7 @@ self.addEventListener("mouseup", (m) => {
   cursor.y = m.offsetY;
   if (isMarker && currentLine != undefined) currentLine.grow(cursor.x, cursor.y);
   isDrawing = false;
-  currentLine = new LineCommand(cursor.x, cursor.y, style, "black");
+  currentLine = new LineCommand(cursor.x, cursor.y, currentStyle, "black");
   cursor.mouseDown = false;
   canvas.dispatchEvent(draw);
 });
@@ -247,14 +261,14 @@ const availableTools = [
   {
     name: "Thin Sketch",
     press: () => {
-      style = "thin";
+      currentStyle = "thin";
       isMarker = true;
     }
   },
   {
     name: "Thick Sketch",
     press: () => {
-      style = "thick";
+      currentStyle = "thick";
       isMarker = true;
     }
   }, 
@@ -266,7 +280,7 @@ const availableTools = [
         const newButton = document.createElement("button");
         newButton.textContent = `${newSticker} Sticker`;
         newButton.addEventListener("click", () => {
-          style = newSticker;
+          currentStyle = newSticker;
           isMarker = false;
           canvas.dispatchEvent(moved);
         })
@@ -306,7 +320,7 @@ const availableTools = [
   {
     name: "🍫 Sticker",
     press: () => {
-      style = "🍫";
+      currentStyle = "🍫";
       isMarker = false;
       canvas.dispatchEvent(moved);
     }
@@ -314,7 +328,7 @@ const availableTools = [
   {
     name: "🏳️‍⚧️ Sticker",
     press: () => {
-      style = "🏳️‍⚧️";
+      currentStyle = "🏳️‍⚧️";
       isMarker = false;
       canvas.dispatchEvent(moved);
     }
@@ -322,7 +336,7 @@ const availableTools = [
   {
     name: "🎊 Sticker",
     press: () => {
-      style = "🎊";
+      currentStyle = "🎊";
       isMarker = false;
       canvas.dispatchEvent(moved);
     }
@@ -339,19 +353,5 @@ for (const tool of availableTools) {
   if (buttonCounter >= 5) {
     app.append(document.createElement("br"));
     buttonCounter = 0;
-  }
-}
-
-function clear() {
-  ctx.clearRect(0, 0, 256, 256);
-}
-
-function redraw() {
-  clear();
-  for (const line of lines) {
-    line.display(ctx);
-  }
-  if (cursor.active) {
-    cursor.draw(ctx);
   }
 }
