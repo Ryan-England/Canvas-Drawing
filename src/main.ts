@@ -1,5 +1,12 @@
 import "./style.css";
 
+const THICK_LINE = 8;
+const THIN_LINE = 2;
+const CANVAS_WIDTH = 256;
+const CANVAS_HEIGHT = 256;
+const EXPORT_WIDTH = 1024;
+const EXPORT_HEIGHT = 1024;
+
 class LineCommand {
   points: {x: number, y: number}[];
   width: number;
@@ -9,9 +16,11 @@ class LineCommand {
     this.points = [{ x, y }];
 
     if (style == "thick") {
-      this.width = 8;
+      //this.width = 8;
+      this.width = THICK_LINE;
     } else {
-      this.width = 2;
+      //this.width = 2;
+      this.width = THIN_LINE;
     }
 
     this.color = newColor;
@@ -85,7 +94,8 @@ const cursor = {
 }
 
 function clear() {
-  ctx.clearRect(0, 0, 256, 256);
+  //ctx.clearRect(0, 0, 256, 256);
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 }
 
 function redraw() {
@@ -301,12 +311,15 @@ const availableTools = [
       const firstLetter = Array.from(String(confirmation))[0];
       const tempCanvas = document.createElement("canvas");
       tempCanvas.id = "ExportCanvas";
-      tempCanvas.height = 1024;
-      tempCanvas.width = 1024;
+      //tempCanvas.height = 1024;
+      //tempCanvas.width = 1024;
+      tempCanvas.height = EXPORT_HEIGHT;
+      tempCanvas.width = EXPORT_WIDTH;
       const expCtx = tempCanvas.getContext("2d")!;
       expCtx.scale(4, 4);
       if (!(firstLetter == "y" || firstLetter == "Y")) {
-        expCtx.clearRect(0, 0, 1024, 1024)
+        //expCtx.clearRect(0, 0, 1024, 1024)
+        expCtx.clearRect(0, 0, tempCanvas.height, tempCanvas.width);
       }
       for (const line of lines) {
         line.display(expCtx);
