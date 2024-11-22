@@ -6,6 +6,7 @@ const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
 const EXPORT_WIDTH = 1024;
 const EXPORT_HEIGHT = 1024;
+let currentColor = 'rgb(0, 0, 0)';
 
 class LineCommand {
   points: {x: number, y: number}[];
@@ -89,6 +90,7 @@ const cursor = {
       cursor.face = currentStyle;
     }
     context.font = `${cursor.fontSize}px monospace`;
+    context.strokeStyle = currentColor;
     context.fillText(cursor.face, cursor.x - cursor.xOffset, cursor.y - cursor.yOffset);
   }
 }
@@ -107,7 +109,6 @@ function redraw() {
     cursor.draw(ctx);
   }
 }
-
 
 const APP_NAME = "Hello, welcome to our Canvas";
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -147,6 +148,7 @@ canvas.addEventListener("mouseout", () => {
 });
 
 canvas.addEventListener("mouseenter", (m) => {
+  currentColor = `rgb(${redSlider.value}, ${greenSlider.value}, ${blueSlider.value})`
   cursor.x = m.offsetX;
   cursor.y = m.offsetY;
   cursor.active = true;
@@ -160,7 +162,7 @@ canvas.addEventListener("mousedown", (m) => {
   cursor.mouseDown = true;
 
   if (isMarker) {
-    const currentColor = `rgb(${redSlider.value}, ${greenSlider.value}, ${blueSlider.value})`
+    currentColor = `rgb(${redSlider.value}, ${greenSlider.value}, ${blueSlider.value})`
     console.log(currentColor);
     currentLine = new LineCommand(cursor.x, cursor.y, currentStyle, currentColor);
     currentLine.grow(cursor.x, cursor.y);
@@ -241,7 +243,7 @@ let buttonCounter = 0;
 
 const availableTools = [
   {
-  name: "Clear",
+  name: "🗑️",
   press: () => {
     clear();
     lines.splice(0, lines.length);
@@ -249,7 +251,7 @@ const availableTools = [
     }
   },
   {
-    name: "Undo",
+    name: "↩",
     press: () => {
       const movedLine: LineCommand | StickerCommand | undefined = lines.pop();
       if (movedLine != undefined) {
@@ -259,7 +261,7 @@ const availableTools = [
     }
   },
   {
-    name: "Redo",
+    name: "↪",
     press: () => {
       const movedLine: LineCommand | StickerCommand | undefined = redoStack.pop();
       if (movedLine != undefined) {
@@ -269,43 +271,21 @@ const availableTools = [
     }
   },
   {
-    name: "Thin Sketch",
+    name: "Thin Brush",
     press: () => {
       currentStyle = "thin";
       isMarker = true;
     }
   },
   {
-    name: "Thick Sketch",
+    name: "Thick Brush",
     press: () => {
       currentStyle = "thick";
       isMarker = true;
     }
   }, 
   {
-    name: "Custom Sticker",
-    press: () => {
-      const newSticker = prompt("Please enter text or an emoji: ", "🤷‍♀️");
-      if (newSticker != null) {
-        const newButton = document.createElement("button");
-        newButton.textContent = `${newSticker} Sticker`;
-        newButton.addEventListener("click", () => {
-          currentStyle = newSticker;
-          isMarker = false;
-          canvas.dispatchEvent(moved);
-        })
-        app.append(newButton);
-        buttons.push(newButton);
-        buttonCounter++;
-        if (buttonCounter >= 5) {
-          app.append(document.createElement("br"));
-          buttonCounter = 0;
-        }
-      }
-    }
-  },
-  {
-    name: "Export",
+    name: "💾",
     press: () => {
       const confirmation = prompt("Would you like a transparent background? (Y/N)", "n");
       const firstLetter = Array.from(String(confirmation))[0];
@@ -331,7 +311,29 @@ const availableTools = [
     }
   },
   {
-    name: "🍫 Sticker",
+    name: "Custom Sticker",
+    press: () => {
+      const newSticker = prompt("Please enter text or an emoji: ", "🤷‍♀️");
+      if (newSticker != null) {
+        const newButton = document.createElement("button");
+        newButton.textContent = `${newSticker} Sticker`;
+        newButton.addEventListener("click", () => {
+          currentStyle = newSticker;
+          isMarker = false;
+          canvas.dispatchEvent(moved);
+        })
+        app.append(newButton);
+        buttons.push(newButton);
+        buttonCounter++;
+        if (buttonCounter >= 5) {
+          app.append(document.createElement("br"));
+          buttonCounter = 0;
+        }
+      }
+    }
+  },
+  {
+    name: "🍫",
     press: () => {
       currentStyle = "🍫";
       isMarker = false;
@@ -339,7 +341,7 @@ const availableTools = [
     }
   },
   {
-    name: "🏳️‍⚧️ Sticker",
+    name: "🏳️‍⚧️",
     press: () => {
       currentStyle = "🏳️‍⚧️";
       isMarker = false;
@@ -347,7 +349,7 @@ const availableTools = [
     }
   },
   {
-    name: "🎊 Sticker",
+    name: "🎊",
     press: () => {
       currentStyle = "🎊";
       isMarker = false;
