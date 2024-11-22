@@ -328,6 +328,7 @@ const availableTools = [
           isMarker = false;
           canvas.dispatchEvent(moved);
         })
+        newButton.style.marginLeft = "5px";
         app.append(newButton);
         buttons.push(newButton);
         buttonCounter++;
@@ -368,6 +369,7 @@ for (const tool of availableTools) {
   const toolButton = document.createElement("button");
   toolButton.textContent = tool.name;
   toolButton.addEventListener("click", tool.press)
+  toolButton.style.marginLeft = "5px";
   app.append(toolButton);
   buttons.push(toolButton);
   buttonCounter++;
