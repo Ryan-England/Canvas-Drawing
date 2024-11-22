@@ -110,6 +110,12 @@ function redraw() {
   }
 }
 
+function addSpacer() {
+  const spacer = document.createElement("div");
+  spacer.style.marginTop = "15px";
+  app.append(spacer);
+}   
+
 const APP_NAME = "Hello, welcome to our Canvas";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
@@ -199,7 +205,7 @@ self.addEventListener("mouseup", (m) => {
   canvas.dispatchEvent(draw);
 });
 
-app.append(document.createElement("br"), document.createElement("br"));
+addSpacer();
 
 const redLabel = document.createElement("div");
 redLabel.innerText = "Red: "
@@ -236,7 +242,7 @@ blueSlider.max = "255";
 blueSlider.step = "5";
 blueSlider.value = "0";
 app.append(blueSlider)
-app.append(document.createElement("br"));
+addSpacer();
 
 const buttons: HTMLButtonElement[] = [];
 let buttonCounter = 0;
@@ -326,7 +332,7 @@ const availableTools = [
         buttons.push(newButton);
         buttonCounter++;
         if (buttonCounter >= 5) {
-          app.append(document.createElement("br"));
+          addSpacer();
           buttonCounter = 0;
         }
       }
@@ -366,7 +372,7 @@ for (const tool of availableTools) {
   buttons.push(toolButton);
   buttonCounter++;
   if (buttonCounter >= 5) {
-    app.append(document.createElement("br"));
+    addSpacer();  
     buttonCounter = 0;
   }
 }
